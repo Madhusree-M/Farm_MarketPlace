@@ -15,7 +15,20 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public User registerUser(User user) {
+    public User saveOrUpdateUser(User user) {
+        if (user.getId() != null) {
+            // Update existing user
+            Optional<User> existingUser = userRepository.findById(user.getId());
+            if (existingUser.isPresent()) {
+                User u = existingUser.get();
+                u.setName(user.getName());
+                u.setEmail(user.getEmail());
+                // u.setPassword(user.getPassword());
+                u.setRole(user.getRole());
+                return userRepository.save(u);
+            }
+        }
+        // New user
         return userRepository.save(user);
     }
 

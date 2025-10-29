@@ -6,7 +6,8 @@
 <body>
     <h2>Add User</h2>
 
-    <form th:action="@{/users/register}" th:object="${user}" method="post">
+    <form th:action="@{/users/save}" th:object="${user}" method="post">
+        <input type="hidden" th:field="*{id}" />
         <p>
             <label>Name:</label><br>
             <input type="text" th:field="*{name}" required>
@@ -17,16 +18,15 @@
             <input type="email" th:field="*{email}" required>
         </p>
 
-        <p>
-            <label>Password:</label><br>
-            <input type="password" th:field="*{password}" required>
-        </p>
 
         <p>
             <label>Role:</label><br>
             <select th:field="*{role}">
-                <option th:each="r : ${roles}" th:value="${r}" th:text="${r}"></option>
-            </select>
+                <option value="">-- Select Role --</option>
+                <option value="FARMER">Farmer</option>
+                <option value="BUYER">Buyer</option>
+                <option value="ADMIN">Admin</option>
+            </select><br><br>
         </p>
 
         <p>

@@ -6,5 +6,5 @@ import com.example.Farm_MarketPlace.entity.User;
 import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
-    List<Product> findByFarmer(User farmer);
+    List<Product> getProductByFarmer(User farmer);
 }

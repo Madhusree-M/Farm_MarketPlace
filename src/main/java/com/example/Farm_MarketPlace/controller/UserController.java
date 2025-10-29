@@ -4,6 +4,7 @@ import com.example.Farm_MarketPlace.entity.User;
 import com.example.Farm_MarketPlace.service.UserService;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -33,18 +34,29 @@ public class UserController {
         return "users/form"; // loads templates/users/form.html
     }
 
-    @PostMapping("/register")
-    public String registerUser(@ModelAttribute("user") User user) {
-        userService.registerUser(user);
+    // Edit user form
+    @GetMapping("/edit/{id}")
+    public String editUser(@PathVariable("id") Long id, Model model) {
+        Optional<User> user = userService.getUserById(id);
+        if (user.isPresent()) {
+            model.addAttribute("user", user.get());
+            model.addAttribute("roles", User.Role.values());
+            return "users/form";
+        } else {
+            return "redirect:/users";
+        }
+    }
+
+    @PostMapping("/save")
+    public String saveUser(@ModelAttribute("user") User user) {
+        userService.saveOrUpdateUser(user);
         return "redirect:/users";
     }
 
     // Delete user by ID
     @GetMapping("/delete/{id}")
     public String deleteUser(@PathVariable Long id) {
-        if (userService.getUserById(id).isPresent()) {
-            userService.deleteUser(id);
-        }
+        userService.deleteUser(id);
         return "redirect:/users";
     }
 
