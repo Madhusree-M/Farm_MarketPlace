@@ -26,7 +26,8 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role; // FARMER, BUYER, ADMIN
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    // One user (buyer) can place many orders
+    @OneToMany(mappedBy = "buyer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Order> orders;
 
     public enum Role {

@@ -2,23 +2,55 @@ package com.example.Farm_MarketPlace.controller;
 
 import com.example.Farm_MarketPlace.entity.User;
 import com.example.Farm_MarketPlace.service.UserService;
+
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequestMapping("/api/users")
+@Controller
+@RequestMapping("/users")
 public class UserController {
 
     @Autowired
     private UserService userService;
 
+    // Display all users
+    @GetMapping
+    public String listUsers(Model model) {
+        List<User> users = userService.getAllUsers();
+        model.addAttribute("users", users);
+        return "user-list"; // loads templates/user-list.html
+    }
+
+    // Show add user form
+    @GetMapping("/add")
+    public String showAddUserForm(Model model) {
+        model.addAttribute("user", new User());
+        model.addAttribute("roles", User.Role.values());
+        return "user-form"; // loads templates/user-form.html
+    }
+
     @PostMapping("/register")
-    public User registerUser(@RequestBody User user) {
-        return userService.registerUser(user);
+    public String registerUser(@ModelAttribute("user") User user) {
+        userService.registerUser(user);
+        return "redirect:/users";
+    }
+
+    // Delete user by ID
+    @GetMapping("/delete/{id}")
+    public String deleteUser(@PathVariable Long id) {
+        if (userService.getUserById(id).isPresent()) {
+            userService.deleteUser(id);
+        }
+        return "redirect:/users";
     }
 
     @GetMapping("/email/{email}")
+    @ResponseBody
     public User getUserByEmail(@PathVariable String email) {
-        return userService.findByEmail(email).orElse(null);
+        return userService.getUserByEmail(email).orElse(null);
     }
 }
