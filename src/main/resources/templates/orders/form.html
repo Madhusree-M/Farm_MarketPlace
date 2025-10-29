@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Place Order</title>
+</head>
+<body>
+<h2>Place Order</h2>
+
+<!-- <div th:if="${error}" style="color: red; font-weight: bold; margin-bottom: 10px;">
+    <p th:text="${error}"></p>
+</div> -->
+
+<form th:action="@{/orders/save}" th:object="${order}" method="post">
+    <input type="hidden" th:field="*{id}" />
+
+    <p>
+        <label>Buyer:</label><br>
+        <select th:field="*{buyer.id}" required>
+            <option value="">-- Select Buyer --</option>
+            <option th:each="buyer : ${buyers}" 
+                    th:value="${buyer.id}" 
+                    th:text="${buyer.name}">
+            </option>
+        </select>
+    </p>
+
+    <p>
+        <label>Product:</label><br>
+        <select th:field="*{product.id}" required>
+            <option value="">-- Select Product --</option>
+            <option th:each="product : ${products}" 
+                    th:value="${product.id}" 
+                    th:text="${product.name}">
+            </option>
+        </select>
+    </p>
+
+    <p>
+        <label>Quantity:</label><br>
+        <input type="number" th:field="*{quantity}" min="1" required>
+    </p>
+
+    <p>
+        <button type="submit">Place Order</button>
+        <a th:href="@{/orders}">Back</a>
+    </p>
+</form>
+</body>
+</html>

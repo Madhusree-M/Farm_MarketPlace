@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Order List</title>
+</head>
+<body>
+<h2>Orders</h2>
+
+<a th:href="@{/orders/add}">Place Order</a>
+<a th:href="@{/products}">Manage Products</a>
+
+<table border="1" cellpadding="8" cellspacing="0">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Buyer</th>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Total Price</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="order : ${orders}">
+            <td th:text="${order.id}"></td>
+            <td th:text="${order.buyer.name}"></td>
+            <td th:text="${order.product.name}"></td>
+            <td th:text="${order.quantity}"></td>
+            <td th:text="${order.totalPrice}"></td>
+            <td th:text="${order.status}"></td>
+            <td>
+                <a th:href="@{'/orders/cancel/' + ${order.id}}"
+                   onclick="return confirm('Cancel this order?');">Cancel</a> |
+                <a th:href="@{'/orders/status/' + ${order.id} + '/DELIVERED'}">Mark Delivered</a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+</body>
+</html>

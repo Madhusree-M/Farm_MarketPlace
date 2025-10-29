@@ -1,11 +1,14 @@
 package com.example.Farm_MarketPlace.service;
 
 import com.example.Farm_MarketPlace.entity.Order;
+import com.example.Farm_MarketPlace.entity.Order.Status;
+import com.example.Farm_MarketPlace.entity.Product;
 // import com.example.Farm_MarketPlace.entity.Product;
 import com.example.Farm_MarketPlace.entity.User;
 import com.example.Farm_MarketPlace.repository.OrderRepository;
-import com.example.Farm_MarketPlace.repository.InventoryRepository;
-import com.example.Farm_MarketPlace.entity.Inventory;
+import com.example.Farm_MarketPlace.repository.ProductRepository;
+import com.example.Farm_MarketPlace.repository.UserRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,26 +21,66 @@ public class OrderService {
     private OrderRepository orderRepository;
 
     @Autowired
-    private InventoryRepository inventoryRepository;
+    private UserRepository userRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
 
     public Order placeOrder(Order order) {
-        // Check stock before placing order
-        Inventory inventory = inventoryRepository.findByProduct(order.getProduct())
-                .orElseThrow(() -> new RuntimeException("Product not found in inventory"));
+        // Fetch full Product
+        Product product = productRepository.findById(order.getProduct().getId())
+                .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        if (inventory.getAvailableQuantity() < order.getQuantity()) {
-            throw new RuntimeException("Not enough stock available");
+        // Fetch full Buyer
+        User buyer = userRepository.findById(order.getBuyer().getId())
+                .orElseThrow(() -> new RuntimeException("Buyer not found"));
+
+        // Set actual entities
+        order.setProduct(product);
+        order.setBuyer(buyer);
+
+        // Check stock
+        if (product.getQuantity() < order.getQuantity()) {
+            throw new RuntimeException("Not enough stock for: " + product.getName());
         }
 
         // Deduct quantity
-        inventory.setAvailableQuantity(inventory.getAvailableQuantity() - order.getQuantity());
-        inventoryRepository.save(inventory);
+        product.setQuantity(product.getQuantity() - order.getQuantity());
+        productRepository.save(product);
 
-        order.setTotalPrice(order.getProduct().getPrice() * order.getQuantity());
+        // Calculate total
+        order.setTotalPrice(product.getPrice() * order.getQuantity());
+        order.setStatus(Order.Status.PENDING);
+
         return orderRepository.save(order);
+    }
+
+    // Get all orders
+    public List<Order> getAllOrders() {
+        return orderRepository.findAll();
     }
 
     public List<Order> getOrdersByBuyer(User buyer) {
         return orderRepository.findByBuyer(buyer);
+    }
+
+    // Cancel order (restore product quantity)
+    public void cancelOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        Product product = order.getProduct();
+        product.setQuantity(product.getQuantity() + order.getQuantity());
+        productRepository.save(product);
+
+        orderRepository.deleteById(orderId);
+    }
+
+    public Order updateOrderStatus(Long orderId, Status status) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        order.setStatus(status);
+        return orderRepository.save(order);
     }
 }
