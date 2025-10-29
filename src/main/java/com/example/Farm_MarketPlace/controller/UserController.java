@@ -22,7 +22,7 @@ public class UserController {
     public String listUsers(Model model) {
         List<User> users = userService.getAllUsers();
         model.addAttribute("users", users);
-        return "user-list"; // loads templates/user-list.html
+        return "users/list"; // loads templates/users/list.html
     }
 
     // Show add user form
@@ -30,7 +30,7 @@ public class UserController {
     public String showAddUserForm(Model model) {
         model.addAttribute("user", new User());
         model.addAttribute("roles", User.Role.values());
-        return "user-form"; // loads templates/user-form.html
+        return "users/form"; // loads templates/users/form.html
     }
 
     @PostMapping("/register")
